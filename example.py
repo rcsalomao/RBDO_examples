@@ -5,7 +5,7 @@ import nlopt as nlo
 from WASM import WASM, generate_RV_2_param
 
 
-def exemple1():
+def example1():
     def g1(Xi, Xd, d):
         Z1, Z2 = Xd
         return Z1**2 * Z2 / 20.0 - 1.0
@@ -22,7 +22,6 @@ def exemple1():
         (st.norm(2.0, 0.6), st.norm(5.0, 0.6)),
         (st.norm(2.0, 0.6), st.norm(5.0, 0.6)),
     ]
-    n_Xd = len(Xd_lbub)
     limit_state_functions = [g1, g2, g3]
 
     w = WASM(Xd_lbub=Xd_lbub, n_samples=50000, inferior_superior_exponent=8)
@@ -46,6 +45,7 @@ def exemple1():
         else:
             return a + penalty
 
+    n_Xd = len(Xd_lbub)
     global_opt = nlo.opt(nlo.GN_DIRECT, n_Xd)
     global_opt.set_min_objective(f_obj)
     global_opt.set_lower_bounds([2.0] * n_Xd)
@@ -65,7 +65,7 @@ def exemple1():
     print(res.systems_results.betas)
 
 
-def exemple2():
+def example2():
     def g1(Xi, Xd, d):
         P, E, fy, kd, ki = Xi
         D, t = d
@@ -152,5 +152,5 @@ def exemple2():
 
 
 if __name__ == "__main__":
-    exemple1()
-    # exemple2()
+    example1()
+    # example2()
