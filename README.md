@@ -17,7 +17,7 @@ This repo makes use of the following libs:
 
 $$
 \begin{aligned}
-\textrm{find: }& \mu_i^* = \{\mu_1^*, \mu_2^*\}; \\
+\textrm{find: }& \mu_i^\* = \\{\mu_1^\*,\mu_2^\*\\}; \\
 \textrm{that minimizes: }& f^{obj}(\mu_i) = \mu_1 + \mu_2; \\
 \textrm{subject to: }& P[g_j(Z_i) \le 0] \le p_j^{fT} = \Phi[-\beta_j^T];\\
 \textrm{with: }& \beta_j^T \ge 2.0; \\
@@ -106,7 +106,7 @@ def example1():
 
 $$
 \begin{aligned}
-\textrm{find: }& d_n^* = \{D^*, t^*\}; \\
+\textrm{find: }& d_n^\* = \\{D^\*, t^\*\\}; \\
 \textrm{that minimizes: }& f^{obj}(d_n) = C^t(D,t) = C_1\pi hDt + C^fP^f; \\
 \textrm{subject to: }& \beta_j(Xi_m,d_n) \ge \beta_j^T;\\
 \textrm{with: }& \beta_j^T \ge 4.0; \\
@@ -119,18 +119,22 @@ $$
 $$
 
 $$
-f^{lb} = \left(1.5 - \frac{1}{\sqrt{2}} \lambda^b\right)
-\textrm{ with}\\
-\lambda^b = \sqrt{\frac{f^y}{\theta^b S^{el}}} \textrm{ for } \sqrt{\frac{1}{2}} \le \lambda^b \le \sqrt{2},\\
-S^{el} = \frac{2Et}{d\sqrt{3(1 - \nu^2)}} \textrm{ and } \theta^b = \frac{k^d}{\sqrt{1 + 0.005D/t}}
+\begin{aligned}
+f^{lb} &= \left(1.5 - \frac{1}{\sqrt{2}} \lambda^b\right) \textrm{ with}\\
+\lambda^b &= \sqrt{\frac{f^y}{\theta^b S^{el}}} \textrm{ for } \sqrt{\frac{1}{2}} \le \lambda^b \le \sqrt{2},\\
+S^{el} &= \frac{2Et}{d\sqrt{3(1 - \nu^2)}} \textrm{ and }\\
+\theta^b &= \frac{k^d}{\sqrt{1 + 0.005D/t}}
+\end{aligned}
 $$
 
 
 
 $$
-f^{gb} = \left(\gamma - \sqrt{\gamma^2 - 1/{\lambda^e}^2}\right)f^y
-\textrm{ with}\\
-\gamma = \frac{1}{2{\lambda^e}^2}({\lambda^e}^2 + k^i(\lambda^e - 0.2) + 0.8) \textrm{ and } \lambda^e = \frac{h}{0.35D\pi}\sqrt{\frac{f^y}{E}}
+\begin{aligned}
+f^{gb} &= \left(\gamma - \sqrt{\gamma^2 - 1/{\lambda^e}^2}\right)f^y \textrm{ with}\\
+\gamma &= \frac{1}{2{\lambda^e}^2}({\lambda^e}^2 + k^i(\lambda^e - 0.2) + 0.8) \textrm{ and }\\
+\lambda^e &= \frac{h}{0.35D\pi}\sqrt{\frac{f^y}{E}}
+\end{aligned}
 $$
 
 | R. V. Name | Description            | R. V. Type | Mean  | Coef. of Var. (%) |
