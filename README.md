@@ -1,4 +1,4 @@
-# RBDO_examples
+# RBDO examples
 
 The main objective of this repo is to provide examples on how to use [WASM](https://github.com/rcsalomao/WASM) to solve Reliability Based Design Optimization problems.
 
@@ -13,21 +13,35 @@ This repo makes use of the following libs:
 
 ## Examples
 
-### Nonlinear mathematical optimization problem.
+Here some numerical examples are solved to demonstrate the usability of the WASM library on the context of optimization problems with constraints given by failure probability.
+For the optimization process the [nlopt](http://github.com/stevengj/nlopt) library [1] was employed, but another optimization algorithm or library can be equally applied.
+On both numerical examples, the DIRECT algorithm [2] is initially used to obtain a good global initial estimate.
+Later, this estimate is used on the Sbplx (based on Subplex) algorithm [3] to obtain the optimal values.
+
+### Optimization of mathematical model with nonlinear constraints.
+
+This example is an optimization of a mathematical model with nonlinear constraints taken from [4].
+The optimization problem is defined as:
 
 $$
 \begin{aligned}
-\textrm{find: }& \mu_i^\* = \\{\mu_1^\*,\mu_2^\*\\}; \\
-\textrm{that minimizes: }& f^{obj}(\mu_i) = \mu_1 + \mu_2; \\
+\textrm{find: }& \mu_i^\star = \{\mu_1^\star,\mu_2^\star\};\\
+\textrm{that minimizes: }& f^{obj}(\mu_i) = \mu_1 + \mu_2;\\
 \textrm{subject to: }& P[g_j(Z_i) \le 0] \le p_j^{fT} = \Phi[-\beta_j^T];\\
-\textrm{with: }& \beta_j^T \ge 2.0; \\
-& Z_i \sim N(\mu_i, 0.6); \\
-& 0 \le \mu_i \le 10; \\
-& g_1(Z_i) = \frac{Z_1^2Z_2}{20} - 1; \\
-& g_2(Z_i) = \frac{(Z_1 + Z_2 - 5)^2}{30} + \frac{(Z_1 - Z_2 - 12)^2}{120} - 1; \\
-& g_3(Z_i) = \frac{80}{(Z_1^2 + 8Z_2 + 5)} - 1; \\
+\textrm{with: }& \beta_j^T \ge 2.0;\\
+& Z_i \sim N(\mu_i, 0.6);\\
+& 0 \le \mu_i \le 10;\\
+& g_1(Z_i) = \frac{Z_1^2Z_2}{20} - 1;\\
+& g_2(Z_i) = \frac{(Z_1 + Z_2 - 5)^2}{30} + \frac{(Z_1 - Z_2 - 12)^2}{120} - 1;\\
+& g_3(Z_i) = \frac{80}{(Z_1^2 + 8Z_2 + 5)} - 1;\\
 \end{aligned}
 $$
+
+where $\mu_i$ is the vector of mean values of the design random variables $Z_i$, which are the random variables $Xd_i$ of interest for the optimization problem.
+$f^{obj}$ is the objective function to be minimized.
+$p_j^{fT}$ is the target failure probability, whereas $\beta_j^T$ is the target reliability index.
+$g_j(Z_i)$ is the vector of limit state functions to be evaluated into corresponding reliability index $\beta_j$ values.
+The implementation of this numerical example is described as:
 
 ```python
 def example1():
@@ -90,33 +104,41 @@ def example1():
     print(res.systems_results.betas)
 ```
 
-| Reference          | $\mu_1$ | $\mu_2$ | $f^{obj}$ |
-| ------------------ | ------- | ------- | --------- |
-| [1]                | 3.660   | 3.609   | 7.269     |
-| WASM + nlopt       | 3.657   | 3.615   | 7.272     |
-| Relative diff. (%) | -0.082  | 0.166   | 0.041     |
+The following table shows the optimum mean values $\mu_i^\star$ and resulting objective function $f^{obj}$ from this repo.
+It's possible to notice very good agreement when comparing to the values obtained from the reference work.
 
-| Reference          | $\beta_1$ | $\beta_2$ | $\beta_3$ |
-| ------------------ | --------- | --------- | --------- |
-| [1]                | 2.0       | 2.0       | 4.436     |
-| WASM + nlopt       | 2.0       | 2.0       | 4.397     |
-| Relative diff. (%) | 0.0       | 0.0       | -0.879    |
+| Reference          | $\mu_1^\star$ | $\mu_2^\star$ | $f^{obj}$ | $\beta_1$ | $\beta_2$ | $\beta_3$ |
+| ------------------ | ------------- | ------------- | --------- | --------- | --------- | --------- |
+| [4]                | 3.660         | 3.609         | 7.269     | 2.0       | 2.0       | 4.436     |
+| WASM + nlopt       | 3.657         | 3.615         | 7.272     | 2.0       | 2.0       | 4.397     |
+| Relative diff. (%) | -0.082        | 0.166         | 0.041     | 0.0       | 0.0       | -0.879    |
 
-### Optimization of column considering buckling effect.
+### Optimization of column subjected to local and global buckling.
+
+This example deals with the risk optimization of a column subjected to local and global buckling [5].
+The optimization problem is defined as:
 
 $$
 \begin{aligned}
-\textrm{find: }& d_n^\* = \\{D^\*, t^\*\\}; \\
-\textrm{that minimizes: }& f^{obj}(d_n) = C^t(D,t) = C_1\pi hDt + C^fP^f; \\
+\textrm{find: }& d_n^\star = \{D^\star, t^\star\};\\
+\textrm{that minimizes: }& f^{obj}(d_n) = C^t(D,t) = C_1\pi hDt + C^fP^f;\\
 \textrm{subject to: }& \beta_j(Xi_m,d_n) \ge \beta_j^T;\\
-\textrm{with: }& \beta_j^T \ge 4.0; \\
-& 1 \le D \le 3; \\
-& 4 \le t \le 15; \\
-& g_1(Xi_m,d_n) = g^{y}(Xi_m,d_n) = f^{y}\pi Dt - P; \\
-& g_2(Xi_m,d_n) = g^{lb}(Xi_m,d_n) = f^{lb}\pi Dt - P; \\
-& g_3(Xi_m,d_n) = g^{gb}(Xi_m,d_n) = f^{gb}\pi Dt - P; \\
+\textrm{with: }& \beta_j^T \ge 4.0;\\
+& 1 \le D \le 3;\\
+& 4 \le t \le 15;\\
+& g_1(Xi_m,d_n) = g^{y}(Xi_m,d_n) = f^{y}\pi Dt - P;\\
+& g_2(Xi_m,d_n) = g^{lb}(Xi_m,d_n) = f^{lb}\pi Dt - P;\\
+& g_3(Xi_m,d_n) = g^{gb}(Xi_m,d_n) = f^{gb}\pi Dt - P;\\
 \end{aligned}
 $$
+
+where $d_n = \{D, t\}$ is the vector of deterministic variables of interest for the optimization problem.
+$D$ is the diameter of the steel column while $t$ is the thickness of the tube.
+$f^{obj} = C^t(D,t)$ is the objective function representing the total cost, with the first parcel describing the building cost ($C_1\pi hDt$) and the second parcel defining the risk cost ($C^fP^f$).
+$P^f$ is the failure probability of a serial system composed by the modes of failure $g_j$.
+$\beta_j(Xi_m,d_n)$ are the reliability indexes from each one of the limit state functions $g_j$, functions of the independent random variables $Xi_m$ and deterministic design variables $d_n$.
+$\beta_j^T$ are the target reliability indexes and $f^y$ is the yielding stress of the column material.
+$f^{lb}$ corresponds to the local buckling effect and is defined as:
 
 $$
 \begin{aligned}
@@ -127,7 +149,7 @@ S^{el} &= \frac{2Et}{d\sqrt{3(1 - \nu^2)}} \textrm{ and }\\
 \end{aligned}
 $$
 
-
+while $f^{gb}$ represents the global buckling effect, given by:
 
 $$
 \begin{aligned}
@@ -137,6 +159,8 @@ f^{gb} &= \left(\gamma - \sqrt{\gamma^2 - 1/{\lambda^e}^2}\right)f^y \textrm{ wi
 \end{aligned}
 $$
 
+The independent random variables $Xi_m$ employed on the numerical example are described on the next table:
+
 | R. V. Name | Description            | R. V. Type | Mean  | Coef. of Var. (%) |
 | ---------- | ---------------------- | ---------- | ----- | ----------------- |
 | $P$        | Vertical load          | Normal     | 10.0  | 20                |
@@ -144,6 +168,8 @@ $$
 | $f^y$      | Yield stress           | Normal     | 650.0 | 5                 |
 | $k^d$      | Knock-down factor      | Normal     | 0.54  | 16                |
 | $k^i$      | Imperfection parameter | Normal     | 0.49  | 10                |
+
+Finally, the implementation of the example is given by:
 
 ```python
 def example2():
@@ -232,20 +258,22 @@ def example2():
     print(cost)
 ```
 
-| Reference          | $D$   | $t$      | $f^{obj}$ |
-| ------------------ | ----- | -------- | --------- |
-| [2]                | 1.4   | 10.3e-3  | 23.0e3    |
-| WASM + nlopt       | 1.366 | 10.56e-3 | 23.38e3   |
-| Relative diff. (%) | -2.42 | 2.52     | 1.65      |
+From the resulting table it's possible to note good agreement with the results obtained from the reference.
 
-| Reference          | $\beta_1$ | $\beta_2$ | $\beta_3$ | $\beta_\textrm{serial system}$ |
-| ------------------ | --------- | --------- | --------- | ------------------------------ |
-| [2]                | 8.04      | 4.84      | 5.01      | 4.77                           |
-| WASM + nlopt       | 8.16      | 4.93      | 4.96      | 4.81                           |
-| Relative diff. (%) | 1.49      | 1.86      | -1.00     | 0.84                           |
+| Reference          | $D$   | $t$      | $f^{obj}$ | $\beta_1$ | $\beta_2$ | $\beta_3$ | $\beta_\textrm{serial system}$ |
+| ------------------ | ----- | -------- | --------- | --------- | --------- | --------- | ------------------------------ |
+| [5]                | 1.4   | 10.3e-3  | 23.0e3    | 8.04      | 4.84      | 5.01      | 4.77                           |
+| WASM + nlopt       | 1.366 | 10.56e-3 | 23.38e3   | 8.16      | 4.93      | 4.96      | 4.81                           |
+| Relative diff. (%) | -2.42 | 2.52     | 1.65      | 1.49      | 1.86      | -1.00     | 0.84                           |
 
 ## References
 
-[1]: Youn BD, Choi KK. An investigation of nonlinearity of reliability-Based Design Optimization approaches. Journal of mechanical design (New York, N.Y.: 1990). 2004;126(3):403–411.
+[1]: Johnson SG. The NLopt nonlinear-optimization package. http://github.com/stevengj/nlopt
 
-[2]: Enevoldsen I, Sørensen JD. Reliability-based optimization in structural engineering. Structural safety. 1994;15(3):169–196.
+[2]: Jones DR, Perttunen CD, Stuckman BE. Lipschitzian optimization without the Lipschitz constant. Journal of optimization theory and applications. 1993;79(1):157–181.
+
+[3]: Rowan T. Functional Stability Analysis of Numerical Algorithms. Austin: University of Texas, Department of Computer Sciences; 1990.
+
+[4]: Youn BD, Choi KK. An investigation of nonlinearity of reliability-Based Design Optimization approaches. Journal of mechanical design (New York, N.Y.: 1990). 2004;126(3):403–411.
+
+[5]: Enevoldsen I, Sørensen JD. Reliability-based optimization in structural engineering. Structural safety. 1994;15(3):169–196.
