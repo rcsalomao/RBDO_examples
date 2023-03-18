@@ -14,9 +14,10 @@ This repo makes use of the following libs:
 ## Examples
 
 Here some numerical examples are solved to demonstrate the usability of the WASM library on the context of optimization problems with constraints given by failure probability.
-For the optimization process the [nlopt](http://github.com/stevengj/nlopt) library [1] was employed, but another optimization algorithm or library can be equally applied.
+[nlopt](http://github.com/stevengj/nlopt) library [1] was employed for the optimization process, but another optimization algorithm or library can be equally applied.
 On both numerical examples, the DIRECT algorithm [2] is initially used to obtain a good global initial estimate.
 Later, this estimate is used on the Sbplx (based on Subplex) algorithm [3] to obtain the optimal values.
+The constraints were enforced via penalization method on the objective function, by adding a penalization constant on the function value in case of constraint violation.
 
 ### Optimization of mathematical model with nonlinear constraints.
 
@@ -25,7 +26,7 @@ The optimization problem is defined as:
 
 $$
 \begin{aligned}
-\textrm{find: }& \mu_i^\star = \{\mu_1^\star,\mu_2^\star\};\\
+\textrm{find: }& \mu_i^\star = \\\{\mu_1^\star,\mu_2^\star\\\};\\
 \textrm{that minimizes: }& f^{obj}(\mu_i) = \mu_1 + \mu_2;\\
 \textrm{subject to: }& P[g_j(Z_i) \le 0] \le p_j^{fT} = \Phi[-\beta_j^T];\\
 \textrm{with: }& \beta_j^T \ge 2.0;\\
@@ -120,7 +121,7 @@ The optimization problem is defined as:
 
 $$
 \begin{aligned}
-\textrm{find: }& d_n^\star = \{D^\star, t^\star\};\\
+\textrm{find: }& d_n^\star = \\\{D^\star, t^\star\\\};\\
 \textrm{that minimizes: }& f^{obj}(d_n) = C^t(D,t) = C_1\pi hDt + C^fP^f;\\
 \textrm{subject to: }& \beta_j(Xi_m,d_n) \ge \beta_j^T;\\
 \textrm{with: }& \beta_j^T \ge 4.0;\\
