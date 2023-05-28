@@ -2,7 +2,7 @@ import math
 import numpy as np
 import scipy.stats as st
 import nlopt as nlo
-from WASM import WASM, generate_RV_2_param
+from WASM import WASM
 
 
 def example1():
@@ -92,8 +92,8 @@ def example2():
 
     Xi = [
         st.norm(10.0, 0.2 * 10.0),
-        generate_RV_2_param(st.norm, 2.1e5, 0.05 * 2.1e5),
-        generate_RV_2_param(st.norm, 650.0, 0.05 * 650.0),
+        st.norm(2.1e5, 0.05 * 2.1e5),
+        st.norm(650.0, 0.05 * 650.0),
         st.norm(0.54, 0.16 * 0.54),
         st.norm(0.49, 0.10 * 0.49),
     ]
